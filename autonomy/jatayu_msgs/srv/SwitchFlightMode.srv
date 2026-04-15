@@ -1,0 +1,6 @@
+# SwitchFlightMode.srv
+string requested_mode           # QHOVER, QLOITER, AUTO, GUIDED, RTL, QRTL
+---
+bool success
+string current_mode
+string message

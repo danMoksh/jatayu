@@ -1,0 +1,10 @@
+# DeployPayload.srv
+string target_id
+float64 target_lat
+float64 target_lon
+string drop_mode                # SERVO, WINCH, PARACHUTE
+bool force_override
+---
+bool success
+string message
+string drop_event_id
