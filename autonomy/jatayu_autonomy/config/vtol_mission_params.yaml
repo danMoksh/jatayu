@@ -1,0 +1,27 @@
+# Jatayu VTOL Autonomy Parameters
+mission_executive:
+  ros__parameters:
+    cruise_altitude_m: 35.0
+    transition_airspeed_ms: 16.0
+    back_transition_airspeed_ms: 13.0
+    payload_drop_altitude_m: 12.0
+    hover_velocity_limit_ms: 1.5
+    search_speed_ms: 20.0
+    safe_return_battery_pct: 25.0
+
+target_locator:
+  ros__parameters:
+    camera_focal_length_px: 950.0
+    principal_point_x: 640.0
+    principal_point_y: 360.0
+    camera_pitch_offset_deg: -45.0
+    elevation_datum_m: 0.0
+
+payload_controller:
+  ros__parameters:
+    servo_channel: 11
+    release_pwm: 2000
+    lock_pwm: 1000
+    max_drop_altitude_m: 20.0
+    min_drop_altitude_m: 5.0
+    max_drop_wind_speed_ms: 8.0
