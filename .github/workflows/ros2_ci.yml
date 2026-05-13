@@ -1,0 +1,42 @@
+name: ROS 2 Autonomy CI
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'autonomy/**'
+      - '.github/workflows/ros2_ci.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'autonomy/**'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-22.04
+    container:
+      image: osrf/ros:humble-desktop
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          apt-get update
+          apt-get install -y python3-pip python3-pytest python3-colcon-common-extensions
+
+      - name: Build ROS 2 workspace
+        run: |
+          . /opt/ros/humble/setup.sh
+          mkdir -p /tmp/ros_ws/src
+          cp -r autonomy/* /tmp/ros_ws/src/
+          cd /tmp/ros_ws
+          colcon build --symlink-install
+
+      - name: Run unit tests
+        run: |
+          . /opt/ros/humble/setup.sh
+          cd /tmp/ros_ws
+          colcon test
+          colcon test-result --verbose
