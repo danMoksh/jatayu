@@ -1,0 +1,773 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   JATAYU GCS — Theme System + Global Styles
+   Complete professional design system
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Syne:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap');
+@import "tailwindcss";
+
+/* ── Theme Tokens ────────────────────────────────────────────────────── */
+:root {
+  --gcs-bg:         #f0f1f5;
+  --gcs-bg-subtle:  #f5f6fa;
+  --gcs-surface:    #ffffff;
+  --gcs-surface2:   #eaecf2;
+  --gcs-card:       #ffffff;
+  --gcs-card-hover: #f5f6fa;
+  --gcs-border:     #e2e4ed;
+  --gcs-border-h:   #d0d3e0;
+  --gcs-text:       #111827;
+  --gcs-text2:      #111827;
+  --gcs-text3:      #6b7280;
+  --gcs-muted:      #d1d5db;
+  --gcs-accent:     #2563eb;
+  --gcs-accent-dim: #eff6ff;
+  --gcs-accent-border: #1d4ed8;
+  --gcs-success:    #059669;
+  --gcs-success-dim: #ecfdf5;
+  --gcs-warning:    #d97706;
+  --gcs-warning-dim: #fffbeb;
+  --gcs-danger:     #dc2626;
+  --gcs-danger-dim: #fef2f2;
+  --gcs-payload:    #0891b2;
+  --gcs-payload-dim: rgba(8, 145, 178, 0.1);
+  --gcs-sidebar:    #ffffff;
+  --gcs-sidebar-w:  240px;
+  --gcs-radius:     12px;
+  --gcs-radius-sm:  8px;
+  --gcs-radius-lg:  16px;
+  --gcs-shadow:     0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
+  --gcs-shadow-lg:  0 4px 12px rgba(0,0,0,0.08), 0 12px 40px rgba(0,0,0,0.06);
+  --gcs-glass-bg:   rgba(255, 255, 255, 0.7);
+
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --gcs-bg:         #0c0d10;
+  --gcs-bg-subtle:  #1a1c24;
+  --gcs-surface:    #13141a;
+  --gcs-surface2:   #21232e;
+  --gcs-card:       #13141a;
+  --gcs-card-hover: #1a1c24;
+  --gcs-border:     #ffffff0f;
+  --gcs-border-h:   #ffffff1a;
+  --gcs-text:       #e8e9f0;
+  --gcs-text2:      #e8e9f0;
+  --gcs-text3:      #6b6e7e;
+  --gcs-muted:      #3a3d4d;
+  --gcs-accent:     #4f8ef7;
+  --gcs-accent-dim: #1e3a5f20;
+  --gcs-accent-border: #2563eb;
+  --gcs-success:    #22d08a;
+  --gcs-success-dim: #22d08a15;
+  --gcs-warning:    #f5a623;
+  --gcs-warning-dim: #f5a62315;
+  --gcs-danger:     #f0454a;
+  --gcs-danger-dim: #f0454a15;
+  --gcs-payload:    #0fd9c8;
+  --gcs-payload-dim: rgba(15, 217, 200, 0.1);
+  --gcs-sidebar:    #13141a;
+  --gcs-shadow:     none;
+  --gcs-shadow-lg:  0 4px 12px rgba(0,0,0,0.3), 0 12px 40px rgba(0,0,0,0.3);
+  --gcs-glass-bg:   rgba(17, 24, 39, 0.8);
+  color-scheme: dark;
+}
+
+/* ── Global Reset ────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--gcs-bg);
+  color: var(--gcs-text);
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--gcs-muted);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--gcs-text3); }
+
+/* ── Layout Shell ────────────────────────────────────────────────────── */
+.gcs-shell {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--gcs-bg);
+}
+
+.gcs-sidebar {
+  width: var(--gcs-sidebar-w);
+  min-width: var(--gcs-sidebar-w);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--gcs-sidebar);
+  border-right: 1px solid var(--gcs-border);
+}
+
+.gcs-main {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--gcs-bg);
+}
+
+/* ── Sidebar ─────────────────────────────────────────────────────────── */
+.gcs-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 20px;
+  border-bottom: 1px solid var(--gcs-border);
+}
+
+.gcs-sidebar-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 15px;
+  background: var(--gcs-accent);
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.gcs-sidebar-title {
+  font-size: 16px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--gcs-text);
+  line-height: 1.2;
+}
+
+.gcs-sidebar-subtitle {
+  font-size: 10px;
+  font-family: 'IBM Plex Mono', monospace;
+  color: var(--gcs-text3);
+  letter-spacing: 0.5px;
+}
+
+.gcs-sidebar-nav {
+  flex: 1;
+  padding: 12px 12px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.gcs-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: var(--gcs-radius-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  width: 100%;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: var(--gcs-text3);
+  font-family: 'Outfit', sans-serif;
+}
+
+.gcs-nav-btn:hover {
+  background: var(--gcs-surface);
+  color: var(--gcs-text2);
+}
+
+.gcs-nav-btn.active {
+  background: var(--gcs-accent-dim);
+  color: var(--gcs-accent);
+  border-color: var(--gcs-accent-border);
+  font-weight: 500;
+}
+
+.gcs-nav-shortcut {
+  margin-left: auto;
+  font-size: 10px;
+  font-family: 'IBM Plex Mono', monospace;
+  opacity: 0.4;
+}
+
+.gcs-sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid var(--gcs-border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gcs-sidebar-stat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+}
+
+.gcs-sidebar-stat-label {
+  color: var(--gcs-text3);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+}
+
+.gcs-sidebar-stat-value {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 500;
+  font-size: 11px;
+}
+
+/* ── Cards ───────────────────────────────────────────────────────────── */
+.gcs-card {
+  background: var(--gcs-card);
+  border: 1px solid var(--gcs-border);
+  border-radius: var(--gcs-radius);
+  box-shadow: var(--gcs-shadow);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.gcs-card:hover {
+  border-color: var(--gcs-border-h);
+}
+
+.gcs-card-clickable {
+  cursor: pointer;
+}
+
+.gcs-card-clickable:hover {
+  border-color: var(--gcs-accent-border);
+  box-shadow: var(--gcs-shadow-lg);
+  transform: translateY(-1px);
+}
+
+/* ── Glass effect ────────────────────────────────────────────────────── */
+.gcs-glass {
+  background: var(--gcs-glass-bg);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--gcs-border);
+  border-radius: var(--gcs-radius);
+  box-shadow: var(--gcs-shadow);
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────── */
+.gcs-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: var(--gcs-radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.gcs-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.gcs-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.gcs-btn-primary {
+  background: var(--gcs-accent);
+  color: #080c12;
+  font-weight: 600;
+}
+.gcs-btn-primary:hover:not(:disabled) {
+  filter: brightness(1.1);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+}
+.gcs-btn-primary:active:not(:disabled) {
+  filter: brightness(0.95);
+  box-shadow: none;
+}
+
+.gcs-btn-ghost {
+  background: var(--gcs-surface);
+  color: var(--gcs-text2);
+  border-color: var(--gcs-border);
+}
+.gcs-btn-ghost:hover:not(:disabled) {
+  background: var(--gcs-surface2);
+  color: var(--gcs-text);
+  border-color: var(--gcs-border-h);
+}
+.gcs-btn-ghost:active:not(:disabled) {
+  background: var(--gcs-surface);
+  border-color: var(--gcs-border);
+}
+
+.gcs-btn-danger {
+  background: var(--gcs-danger-dim);
+  color: var(--gcs-danger);
+  border-color: rgba(248, 113, 113, 0.3);
+}
+.gcs-btn-danger:hover:not(:disabled) {
+  filter: brightness(1.15);
+  box-shadow: 0 0 20px rgba(248, 113, 113, 0.15);
+}
+.gcs-btn-danger:active:not(:disabled) {
+  filter: brightness(0.9);
+  box-shadow: none;
+}
+
+.gcs-btn-success {
+  background: var(--gcs-success-dim);
+  color: var(--gcs-success);
+  border-color: rgba(52, 211, 153, 0.3);
+}
+
+.gcs-btn-warning {
+  background: var(--gcs-warning-dim);
+  color: var(--gcs-warning);
+  border-color: rgba(251, 191, 36, 0.3);
+}
+
+/* ── Inputs ──────────────────────────────────────────────────────────── */
+.gcs-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: var(--gcs-radius-sm);
+  font-size: 13px;
+  font-family: inherit;
+  background: var(--gcs-surface);
+  color: var(--gcs-text);
+  border: 1px solid var(--gcs-border);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.gcs-input:focus {
+  border-color: var(--gcs-accent-border);
+  box-shadow: 0 0 0 3px var(--gcs-accent-dim);
+}
+
+.gcs-input::placeholder {
+  color: var(--gcs-muted);
+}
+
+.gcs-select {
+  padding: 10px 14px;
+  border-radius: var(--gcs-radius-sm);
+  font-size: 13px;
+  font-family: inherit;
+  background: var(--gcs-surface);
+  color: var(--gcs-text);
+  border: 1px solid var(--gcs-border);
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.gcs-select:focus {
+  border-color: var(--gcs-accent-border);
+}
+
+/* ── Section Header ──────────────────────────────────────────────────── */
+.gcs-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.gcs-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--gcs-text3);
+}
+
+/* ── Metric Card ─────────────────────────────────────────────────────── */
+.gcs-metric {
+  padding: 18px 20px;
+}
+
+.gcs-metric-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.gcs-metric-label {
+  font-size: 11px;
+  font-family: 'IBM Plex Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--gcs-text3);
+}
+
+.gcs-metric-value {
+  font-size: 26px;
+  font-weight: 600;
+  font-family: 'IBM Plex Mono', monospace;
+  line-height: 1.1;
+}
+
+.gcs-metric-unit {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--gcs-text3);
+  margin-left: 4px;
+}
+
+.gcs-metric-subtext {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--gcs-text3);
+}
+
+/* ── Status Badge ────────────────────────────────────────────────────── */
+.gcs-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 100px;
+  font-size: 10px;
+  font-weight: 600;
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: 0.3px;
+}
+
+.gcs-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Page Container ──────────────────────────────────────────────────── */
+.gcs-page {
+  height: 100%;
+  overflow-y: auto;
+  padding: 28px 32px;
+  animation: page-enter 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.gcs-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.gcs-page-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gcs-text);
+  line-height: 1.3;
+}
+
+.gcs-page-desc {
+  font-size: 13px;
+  color: var(--gcs-text3);
+  margin-top: 4px;
+}
+
+/* ── Grid layouts ────────────────────────────────────────────────────── */
+.gcs-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.gcs-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.gcs-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 1400px) {
+  .gcs-grid-4 { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── Table ───────────────────────────────────────────────────────────── */
+.gcs-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+}
+
+.gcs-table thead th {
+  padding: 12px 20px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--gcs-text3);
+  background: var(--gcs-surface);
+  border-bottom: 1px solid var(--gcs-border);
+}
+
+.gcs-table tbody td {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--gcs-border);
+  vertical-align: middle;
+}
+
+.gcs-table tbody tr {
+  transition: background 0.1s ease;
+}
+
+.gcs-table tbody tr:hover {
+  background: var(--gcs-surface);
+}
+
+.gcs-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ── Stack spacing ───────────────────────────────────────────────────── */
+.gcs-stack {
+  display: flex;
+  flex-direction: column;
+}
+
+.gcs-stack-xs { gap: 4px; }
+.gcs-stack-sm { gap: 8px; }
+.gcs-stack-md { gap: 16px; }
+.gcs-stack-lg { gap: 24px; }
+.gcs-stack-xl { gap: 32px; }
+
+.gcs-row {
+  display: flex;
+  align-items: center;
+}
+
+.gcs-row-sm { gap: 8px; }
+.gcs-row-md { gap: 12px; }
+.gcs-row-lg { gap: 16px; }
+
+/* ── Split layout (main + sidebar panel) ─────────────────────────────── */
+.gcs-split {
+  display: flex;
+  height: 100%;
+}
+
+.gcs-split-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 16px;
+}
+
+.gcs-split-panel {
+  width: 340px;
+  min-width: 340px;
+  height: 100%;
+  overflow-y: auto;
+  padding: 24px;
+  border-left: 1px solid var(--gcs-border);
+  background: var(--gcs-bg-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ── Status indicator dot ────────────────────────────────────────────── */
+.gcs-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.gcs-dot-pulse {
+  animation: pulse-glow 1s ease-in-out infinite;
+}
+
+/* ── Mono text ───────────────────────────────────────────────────────── */
+.gcs-mono {
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+/* ── Empty state ─────────────────────────────────────────────────────── */
+.gcs-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.gcs-empty-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gcs-text2);
+  margin-bottom: 4px;
+}
+
+.gcs-empty-desc {
+  font-size: 12px;
+  color: var(--gcs-text3);
+  max-width: 280px;
+}
+
+/* ── Leaflet overrides ───────────────────────────────────────────────── */
+.leaflet-container { background: var(--gcs-bg) !important; }
+.leaflet-control-zoom a {
+  background: var(--gcs-surface) !important;
+  color: var(--gcs-text) !important;
+  border-color: var(--gcs-border) !important;
+}
+.leaflet-control-zoom a:hover { background: var(--gcs-card) !important; }
+.leaflet-popup-content-wrapper {
+  background: var(--gcs-surface) !important;
+  color: var(--gcs-text) !important;
+  border: 1px solid var(--gcs-border) !important;
+  border-radius: var(--gcs-radius) !important;
+  box-shadow: var(--gcs-shadow-lg) !important;
+}
+.leaflet-popup-tip { background: var(--gcs-surface) !important; }
+.leaflet-popup-close-button { color: var(--gcs-text3) !important; }
+
+/* ── Animations ──────────────────────────────────────────────────────── */
+::view-transition-old(root) {
+  animation: none;
+  mix-blend-mode: normal;
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  animation: theme-spill 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  mix-blend-mode: normal;
+  z-index: 2;
+}
+
+@keyframes theme-spill {
+  from { clip-path: circle(0px at var(--spill-x, 50%) var(--spill-y, 50%)); }
+  to { clip-path: circle(var(--spill-r, 150vw) at var(--spill-x, 50%) var(--spill-y, 50%)); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 6px currentColor); }
+  50% { opacity: 0.2; transform: scale(0.85); filter: drop-shadow(0 0 0px currentColor); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes page-enter {
+  0% { opacity: 0; transform: translateY(8px) scale(0.99); filter: blur(2px); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ── Modal overlay ───────────────────────────────────────────────────── */
+.gcs-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.15s ease-out;
+}
+
+.gcs-modal {
+  background: var(--gcs-card);
+  border: 1px solid var(--gcs-border);
+  border-radius: var(--gcs-radius-lg);
+  box-shadow: var(--gcs-shadow-lg);
+  animation: slideUp 0.2s ease-out;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+/* ── Settings row ────────────────────────────────────────────────────── */
+.gcs-settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--gcs-border);
+}
+
+.gcs-settings-row:last-child {
+  border-bottom: none;
+}
+
+.gcs-settings-label {
+  font-size: 14px;
+  color: var(--gcs-text);
+}
+
+.gcs-settings-hint {
+  font-size: 11px;
+  color: var(--gcs-text3);
+  margin-top: 2px;
+}
