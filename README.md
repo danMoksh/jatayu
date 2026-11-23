@@ -1,5 +1,5 @@
 <p align="center">
-  <h1 align="center">🦅 JATAYU VTOL</h1>
+  <h1 align="center"> JATAYU VTOL</h1>
   <p align="center">
     <strong>Autonomous Search-and-Rescue VTOL UAV with ROS 2 Autonomy, Edge AI Vision, and Tactical Ground Control Station</strong>
   </p>
@@ -16,7 +16,7 @@
 
 ---
 
-## 📖 Overview
+## Overview
 
 **Jatayu** is an open-source, full-stack autonomous aerial robotics platform designed for search-and-rescue (SAR), tactical reconnaissance, and targeted medical payload delivery.
 
@@ -28,7 +28,7 @@ Named after the divine bird *Jatayu*—symbol of vigilance and selfless rescue�
 
 ---
 
-## 📸 Mission Gallery
+## Mission Gallery
 
 <table align="center" width="100%">
   <tr>
@@ -55,7 +55,7 @@ Named after the divine bird *Jatayu*—symbol of vigilance and selfless rescue�
 
 ---
 
-## 🏗️ System Architecture
+## ️ System Architecture
 
 ```mermaid
 flowchart LR
@@ -95,10 +95,10 @@ flowchart LR
 
 ---
 
-## 🚀 Key Features
+## Key Features
 
 - **Runway-Independent VTOL**: Vertical takeoff and landing via quadcopter motors, followed by forward pusher acceleration to high-speed fixed-wing flight.
-- **Deterministic Mission State Machine**: Fully autonomous mission lifecycle (`STANDBY` ➔ `VTOL_TAKEOFF` ➔ `TRANSITION_TO_FW` ➔ `SEARCH_PATROL` ➔ `PRECISION_HOVER` ➔ `PAYLOAD_DROP` ➔ `RTL`).
+- **Deterministic Mission State Machine**: Fully autonomous mission lifecycle (`STANDBY`  `VTOL_TAKEOFF`  `TRANSITION_TO_FW`  `SEARCH_PATROL`  `PRECISION_HOVER`  `PAYLOAD_DROP`  `RTL`).
 - **Direct Georeferencing**: Pinpoints ground survivor coordinates (WGS84 lat/long) directly from optical video camera pixels and UAV pitch/yaw/altitude.
 - **Skeletal Pose Triage**: Classifies victim posture (`standing`, `distressed`, `lying_down`) to automatically assign triage severity scores from 1 (stable) to 10 (critical).
 - **Interlocked Payload Deployment**: Prevents accidental releases through multi-condition safety checks (ground velocity < 1.5 m/s, altitude envelope between 5m and 20m).
@@ -106,7 +106,7 @@ flowchart LR
 
 ---
 
-## 📂 Repository Structure
+## Repository Structure
 
 ```
 jatayu/
@@ -141,14 +141,14 @@ jatayu/
 
 ---
 
-## ⚡ Quick Start
+## ️ Installation & Setup
 
 ### 1. Prerequisites
 - **Operating System**: Ubuntu 22.04 LTS (recommended for ROS 2) or Windows 10/11
 - **Python**: 3.10 or 3.11
 - **Node.js**: v18+ (Node 20+ recommended)
 
-### 2. Linux Setup & Launch
+### 2. Linux Installation
 ```bash
 # Clone the repository
 git clone https://github.com/danMoksh/jatayu.git
@@ -156,24 +156,31 @@ cd jatayu
 
 # Run one-touch automated setup
 ./scripts/setup.sh
-
-# Start backend and frontend services
-./scripts/start.sh
 ```
 
-- **GCS Web Kiosk**: Open `http://localhost:5173`
-- **FastAPI Interactive Docs**: Open `http://localhost:8080/docs`
-
-### 3. Windows Setup & Launch
+### 3. Windows Installation
 ```cmd
 REM Run setup script to configure Python virtualenv and install Node modules
 scripts\setup_gcs.bat
-
-REM Launch GCS Backend & Frontend
-scripts\start_gcs.bat
 ```
 
-### 4. Running with ROS 2 Autonomy (Ubuntu 22.04)
+---
+
+## Usage & Execution
+
+### 1. Launch Ground Control Station (GCS)
+- **On Linux**:
+  ```bash
+  ./scripts/start.sh
+  ```
+- **On Windows**:
+  ```cmd
+  scripts\start_gcs.bat
+  ```
+- **GCS Web Kiosk**: Open `http://localhost:5173`
+- **FastAPI Interactive Docs**: Open `http://localhost:8080/docs`
+
+### 2. Running with ROS 2 Autonomy (Ubuntu 22.04)
 ```bash
 # Source ROS 2 Humble
 source /opt/ros/humble/setup.bash
@@ -194,7 +201,7 @@ ros2 launch jatayu_autonomy mission_autonomy.launch.py
 
 ---
 
-## 📡 Telemetry & MAVLink API Reference
+## Telemetry & MAVLink API Reference
 
 The FastAPI backend exposes RESTful endpoints for integration:
 
@@ -210,7 +217,7 @@ The FastAPI backend exposes RESTful endpoints for integration:
 
 ---
 
-## 🛠️ Hardware Bill of Materials (BOM)
+## ️ Hardware Bill of Materials (BOM)
 
 | Component | Part / Model | Purpose |
 | :--- | :--- | :--- |
@@ -227,7 +234,7 @@ Detailed fabrication instructions and 3D printing configurations are documented 
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions to the Jatayu project are warmly welcomed! Please check out the [Issues](https://github.com/danMoksh/jatayu/issues) tab for open tasks or submit a Pull Request following our code guidelines.
 
@@ -239,6 +246,6 @@ Contributions to the Jatayu project are warmly welcomed! Please check out the [I
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.
