@@ -1,48 +1,35 @@
 # JATAYU System Architecture & Technical Specifications
 
-Jatayu is a cyber-physical aerial robotics platform combining a hybrid Vertical Take-Off and Landing (VTOL) QuadPlane UAV, a ROS 2 autonomous mission flight stack, an edge-accelerated computer vision target pipeline, and a modern Ground Control Station (GCS) kiosk.
+> **Engineering write-up:** Check out the full Project Jatayu blog on my portfolio website: [moksh.is-a.dev/#blog/jatayu-vtol](https://moksh.is-a.dev/#blog/jatayu-vtol)
+
+Jatayu is an integrated air-ground Search and Rescue (SAR) system combining a **2.02m hybrid QuadPlane VTOL UAV**, a **ROS 2 autonomous mission stack**, a **FastAPI + React 19 Tactical Ground Control Station (GCS)**, and an **autonomous ground rescue rover**.
 
 ---
 
-## 1. High-Level System Architecture
+## 1. End-to-End Air-Ground Architecture
 
 ```mermaid
 flowchart TD
-    subgraph AerialPlatform["Aerial Vehicle (VTOL UAV)"]
-        Sensors["Avionics & Sensors<br/>(Pixhawk 6C + Here3+ GNSS + Pitot Tube)"]
-        FCU["ArduPlane Flight Controller<br/>(QuadPlane Hybrid Firmware)"]
-        Companion["Edge Companion Computer<br/>(Jetson Orin Nano / RPi 5)"]
-        Cam["Gimbal Optical Camera<br/>(1080p 60fps Downward)"]
-        Actuators["Propulsion & Actuators<br/>(4x Lift BLDC + 1x Pusher + Servo 11)"]
-
-        Sensors --> FCU
-        FCU --> Actuators
-        Cam --> Companion
-        FCU <-->|"MAVLink (UART/USB)"| Companion
+    subgraph AERIAL ["1. Long-Range VTOL Drone"]
+        A["Vertical Takeoff & Cruise<br/>(High-speed flight over disaster zone)"]
+        B["Airborne Thermal Camera<br/>(Detects trapped survivors from above)"]
+        C["Emergency Medical Airdrop<br/>(Releases immediate first-aid supplies)"]
     end
 
-    subgraph AutonomyStack["ROS 2 Autonomy Flight Stack (Companion)"]
-        MavBridge["mavros_bridge Node"]
-        Exec["mission_executive Node<br/>(VTOL State Machine)"]
-        Locator["target_locator Node<br/>(Direct Georeferencing)"]
-        DropCtrl["payload_controller Node<br/>(Interlock & Actuation)"]
-
-        MavBridge <-->|"MAVROS Topics"| Exec
-        Locator -->|"TargetDetection.msg"| Exec
-        Exec -->|"DeployPayload.srv"| DropCtrl
-        DropCtrl -->|"MAV_CMD_DO_SET_SERVO"| MavBridge
+    subgraph COMM ["2. Ground Coordination Link"]
+        D["Disaster Map & Coordinate Relay<br/>(Transmits survivor GPS to ground rescue team)"]
     end
 
-    subgraph GroundControlStation["Ground Control Station (GCS)"]
-        GCS_Backend["FastAPI Backend Service<br/>(Port 8080)"]
-        AI_Vision["YOLOv8 Edge Vision Pipeline<br/>(Pose & Severity Estimation)"]
-        GCS_Frontend["React 19 + TypeScript Kiosk<br/>(Leaflet + Zustand HUD)"]
-
-        GCS_Backend <-->|"REST / WebSockets"| GCS_Frontend
-        AI_Vision -->|"Telemetry-Tagged Targets"| GCS_Backend
+    subgraph ROVER ["3. Ground Rescue Rover"]
+        E["LiDAR Rubble Navigation<br/>(Navigates debris & enters collapsed structures)"]
+        F["Robotic Arm<br/>(Clears rubble & delivers targeted assistance)"]
     end
 
-    Companion <-->|"RF Telemetry / 4G (TCP:5760)"| GCS_Backend
+    A --> B
+    B -->|"Survivor Located"| C
+    B -->|"GPS Coordinates"| D
+    D -->|"Rescue Mission Assigned"| E
+    E -->|"Arrives at Location"| F
 ```
 
 ---
@@ -50,28 +37,23 @@ flowchart TD
 ## 2. Core Subsystems
 
 ### 2.1 Aerial Autopilot & Hybrid VTOL Transitions
-The aircraft employs ArduPilot ArduPlane configured for QuadPlane mode (`Q_ENABLE=1`). 
-- **Vertical Phase**: 4 lift motors operate in multirotor orientation (`QHOVER`/`QLOITER`) for runway-free vertical takeoff and landing.
-- **Transition Phase**: Once above obstacle clearance altitude (30m+ AGL), the forward pusher motor initiates acceleration. Multirotor assist remains active until airspeed exceeds stall threshold (16 m/s).
-- **Fixed-Wing Cruise Phase**: Multirotor motors shut down, folding propellers reduce drag, and aerodynamic lift sustains transit at 20 m/s for up to 55 minutes.
-- **Hover & Delivery Phase**: Upon target acquisition, the aircraft transitions back into multirotor hover over the target coordinates, verifies descent safety limits (12m AGL), and actuates the payload release.
+The aircraft runs ArduPilot ArduPlane configured in QuadPlane mode (`Q_ENABLE=1`):
+- **Vertical Phase (`QLOITER` / `QHOVER`)**: Four vertical lift motors handle runway-free takeoff and landing.
+- **Transition Phase**: Above `30-35 m` AGL (`cruise_altitude_m: 35.0` in `vtol_mission_params.yaml`), the rear pusher accelerates while vertical rotors hold altitude across a 4-second motor overlap (`Q_TRANS_SPEED = 16.0 m/s`, `Q_ASSIST_SPEED = 13.0 m/s`, `Q_TRANSITION_MS = 5000` in `quadplane.parm`).
+- **Fixed-Wing Cruise Phase**: Custom washout wings (`NACA 4412` root to `NACA 2412` tip) carry the airframe through search grids.
+- **Hover & Delivery Phase**: Transitions back to multirotor hover over target coordinates, checks safety interlocks (`5-20 m` AGL, `< 1.5 m/s` ground velocity), and actuates `SERVO11` (`2000` PWM).
 
-### 2.2 ROS 2 Autonomy Engine
-The `jatayu_autonomy` package handles mission-level decisions without continuous operator intervention:
-- **`mission_executive`**: An event-driven state machine managing takeoff, transition, lawnmower search patterns, hover loiter, payload drop, and RTL.
-- **`mavros_bridge`**: Normalizes MAVLink and MAVROS telemetry streams into unified ROS 2 message formats (`jatayu_msgs/DroneTelemetry`).
-- **`target_locator`**: Ingests bounding box detections from the camera stream, combines them with UAV altitude, gimbal pitch, and heading, and computes accurate ground coordinates (WGS84).
-- **`payload_controller`**: Enforces critical safety interlocks (altitude limits, ground velocity ceilings, drop confirmations) before commanding the drop servo.
+### 2.2 ROS 2 Autonomy Engine (`autonomy/jatayu_autonomy`)
+- **`mission_executive`**: State machine orchestrating `STANDBY`, `PREFLIGHT_CHECK`, `VTOL_TAKEOFF`, `TRANSITION_TO_FW`, `WAYPOINT_SURVEY`, `TARGET_APPROACH`, `TRANSITION_TO_MC`, `PRECISION_HOVER`, `PAYLOAD_DELIVERY`, `RTL`, and `VTOL_LAND`.
+- **`mavros_bridge`**: Normalizes MAVROS topics into `jatayu_msgs/DroneTelemetry` (`10 Hz`).
+- **`target_locator`**: Projects bounding box pixel coordinates (`fx = 950.0`, `1280x720`) through aircraft attitude (yaw, pitch, roll) and altitude to WGS84 coordinates.
+- **`payload_controller`**: Enforces altitude and hover velocity constraints before sending `MAV_CMD_DO_SET_SERVO` on channel `11`.
 
-### 2.3 Edge Computer Vision Pipeline
-- **Model**: Ultralytics YOLOv8 pose estimation model (`yolo26n-pose.pt` / `yolov8n.pt`).
-- **Target Profiling**: Detects human subjects in disaster zones, extracts skeletal keypoints to determine target state (`standing`, `distressed`, `lying_down`), and assigns an automated triage severity score (1 to 10).
-- **Geographic Tagging**: Instantaneously joins bounding box coordinates with aircraft GPS telemetry, persisting detections to local target stores.
+### 2.3 Computer Vision & GCS (`gcs/`)
+- **GCS Backend (`gcs/backend`)**: FastAPI service handling MAVLink commands (`tcp:127.0.0.1:5760` or Mission Planner HTTP telemetry), MJPEG streaming, WebSockets, and `YOLOv8` + `BoT-SORT` inference (`bestyolov8s.pt` / `yolov8n-pose.pt`) with pose triage (`standing`, `distressed`, `lying_down` / `prone`) and severity scoring (`1-10`).
+- **Field Aerial Vision Pipeline**: The field deployment documented in the portfolio blog uses `RT-DETR` paired with `BoT-SORT` and `OSNet` appearance embeddings to keep survivor tracking IDs consistent under altitude changes and partial occlusion.
+- **GCS Frontend (`gcs/frontend`)**: React 19 + TypeScript + Vite + Zustand + Leaflet kiosk displaying live telemetry, geodesic slant distances, target lists, and video overlays.
 
-### 2.4 Ground Control Station (GCS)
-- **Backend (FastAPI)**: Lightweight, asynchronous API service managing MAVLink telemetry sockets, MJPEG camera streams, target databases, and operator action logs.
-- **Frontend (React 19 + Vite + Zustand + Leaflet)**: Accessible industrial kiosk interface providing:
-  - Tactical 2D/3D map with dynamic flight paths, geodesic routing, and target breadcrumbs.
-  - Live video stream HUD with computer vision bounding box overlays.
-  - Real-time vehicle telemetry indicators (battery voltage, groundspeed, airspeed, GPS satellite health).
-  - One-click mode switching and safety-latched payload release buttons.
+### 2.4 Ground Rescue Rover
+- **Compute & Sensing**: `NVIDIA Jetson Nano` running `ROS 2 SLAM Toolbox` and `Nav2` with an `RPLiDAR A1` 2D rangefinder (`5 cm` indoor occupancy grid).
+- **Manipulation**: `6-DOF Lewansoul` robotic arm controlled with `MoveIt 2` inverse kinematics to clear rubble and retrieve payloads in collapsed structures.

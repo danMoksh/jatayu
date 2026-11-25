@@ -1,59 +1,53 @@
-# JATAYU VTOL — Hardware Specifications & Airframe Architecture
+# JATAYU VTOL & Ground Rover Hardware Specifications
 
-The **Jatayu VTOL** is a hybrid Vertical Take-Off and Landing Unmanned Aerial Vehicle (UAV) designed for rapid deployment in search-and-rescue, tactical reconnaissance, and targeted medical payload delivery.
+> **Engineering write-up:** Check out the full Project Jatayu blog on my portfolio website: [moksh.is-a.dev/#blog/jatayu-vtol](https://moksh.is-a.dev/#blog/jatayu-vtol)
+
+This document lists the verified airframe, avionics, power, and ground rover hardware specifications from the **Jatayu** build and competition logs (**Hacksagon 2026**, 1st Place, ABV-IIITM Gwalior).
 
 ---
 
-## 1. Airframe Configuration
+## 1. Aerial VTOL Airframe
 
-| Parameter | Specification | Notes |
+| Parameter | Verified Specification | Notes |
 | :--- | :--- | :--- |
-| **Configuration** | QuadPlane Hybrid VTOL | 4 Multirotor lift motors + 1 Forward pusher |
-| **Wingspan** | 1,800 mm | High-lift aerofoil with detachable wings |
-| **Fuselage Length** | 1,120 mm | Aerodynamic composite / reinforced polymer |
-| **Empty Weight (dry)** | 1,650 g | Including airframe and motor brackets |
-| **Max Takeoff Weight (MTOW)** | 3,800 g | Including 4S battery and 600g payload |
-| **Cruise Speed (Fixed Wing)** | 18–22 m/s (65–80 km/h) | Optimal lift-to-drag efficiency |
-| **Stall Speed** | 11 m/s | Safe transition threshold back to multirotor |
-| **Hover Endurance** | 12 minutes | Multirotor hover mode |
-| **Cruise Endurance** | 55 minutes | Fixed-wing transit mode |
-| **Operational Radius** | 25 km | Line-of-Sight RF telemetry / 4G link |
+| **Configuration** | Hybrid QuadPlane VTOL | 4 vertical lift motors + 1 rear pusher, A-tail empennage |
+| **Wingspan** | `2.02 m` (`2,020 mm`) | Custom geometric washout twist |
+| **Wing Area** | `3,684 cm^2` (`0.3684 m^2`) | Aspect ratio `10.79` |
+| **Root Airfoil** | `NACA 4412` (`220 mm` chord) | `2.0 deg` angle of incidence for low-speed lift |
+| **Tip Airfoil** | `NACA 2412` (`117 mm` chord) | `1.0 deg` angle of incidence (`1 deg` washout) to delay tip stall |
+| **Max Takeoff Weight (MTOW)** | `6 kg` | Airframe, dual battery packs, avionics, and medical payload |
+| **Fixed-Wing Cruise Speed** | `45-65 km/h` (`~18 m/s` SITL trim) | `TRIM_ARSPD_CM = 1800` in `simulation/ardupilot/quadplane.parm` |
+| **Transition Thresholds** | `16.0 m/s` forward / `13.0 m/s` assist | `4 s` motor overlap during transition (`Q_TRANSITION_MS = 5000` in SITL) |
 
 ---
 
-## 2. 3D-Printed Structural Components
-
-Critical transition mounts and the payload drop bay are custom engineered and 3D printed using high-durability carbon-fiber reinforced PETG (CF-PETG) to minimize structural mass while maintaining rigid torsional stability during motor transition.
+## 2. Airframe Field Photos
 
 <p align="center">
-  <img src="assets/vtol_airframe_part1.jpeg" width="45%" alt="Jatayu VTOL 3D Printed Motor Spar Mount" />
-  <img src="assets/vtol_airframe_part2.jpeg" width="45%" alt="Jatayu VTOL 3D Printed Nacelle and Transition Assembly" />
+  <img src="assets/vtol_tarmac.jpg" width="48%" alt="Assembled Jatayu 2.02m QuadPlane VTOL on tarmac" />
+  <img src="assets/vtol_night_config.jpg" width="48%" alt="Configuring Jatayu VTOL avionics on the tarmac" />
 </p>
-
-### Fabricated Assemblies:
-1. **Carbon Spar Nacelle Brackets**: Clamps securely onto 16mm carbon fiber boom tubes, mounting the 4x vertical lift brushless motors.
-2. **Payload Release Bay**: Micro-servo actuated latching clamp engineered for safe carry and one-touch release of emergency medical modules.
-3. **Avionics & Optical Pod Housing**: Vibration-isolated gimbal mount for downward-facing optical camera sensor.
 
 ---
 
-## 3. Avionics & Propulsion Stack
+## 3. Dual-Battery Power Architecture
 
-### Flight Controller & Navigation
-- **Autopilot Unit**: Holybro Pixhawk 6C / Cube Orange (STM32H753, 480 MHz)
-- **Firmware**: ArduPilot ArduPlane (QuadPlane mode, `Q_ENABLE=1`)
-- **GNSS / Compass**: Here3+ Precision GNSS with dual RTK capability
-- **Airspeed Sensor**: MS5525 digital differential pitot tube
-- **Companion Computer**: NVIDIA Jetson Orin Nano / Raspberry Pi 5 (running ROS 2 Humble & YOLO vision inference)
+Vertical takeoff demands high burst current, while fixed-wing cruise needs energy density:
+- **VTOL Lift Pack**: `4S 2000 mAh LiPo` dedicated to the four vertical lift motors during hover and transition.
+- **Fixed-Wing Cruise Pack**: `4S6P 21,000 mAh Li-Ion (18650)` dedicated to forward pusher cruise.
 
-### Propulsion System
-- **VTOL Lift Motors**: 4x Sunnysky 2216 880KV Brushless DC motors
-- **VTOL Propellers**: 10x4.5 inch Carbon Fiber Quick-Release
-- **Forward Pusher Motor**: 1x Sunnysky 2814 1000KV Motor
-- **Forward Propeller**: 9x6 inch High-Efficiency APC Folding Prop
-- **ESCs**: 4x 30A BLHeli_S (VTOL lift) + 1x 40A OPTO (Forward pusher)
+---
 
-### Payload Mechanism
-- **Actuation**: Metal-gear MG996R servo
-- **Interface**: MAVLink `SERVO11` PWM trigger (2000µs release state)
-- **Fail-Safe**: Mechanical detent preventing accidental release below threshold airspeed or outside designated hover envelopes.
+## 4. Flight Control, Avionics & Payload Release
+
+- **Firmware**: `ArduPilot ArduPlane` (`QuadPlane` mode, `Q_ENABLE=1`).
+- **Field Flight Controller Recovery**: During pre-demo bench testing at 2:00 AM, a `5V` bus short burned out the primary `SpeedyBee F405` flight controller. We scavenged an unbranded `DAKEFPV` STM32 flight controller, traced motor and elevon pins with a multimeter, and compiled custom `ArduPlane` firmware mappings before morning flight demos.
+- **Payload Actuation (`quadplane.parm` & `vtol_mission_params.yaml`)**: Underbelly drop mechanism wired to `SERVO11` (`SERVO11_FUNCTION = 28`, PWM `1000` locked, `2000` release), gated by `5-20 m` AGL altitude and `< 1.5 m/s` hover velocity interlocks.
+
+---
+
+## 5. Ground Rescue Rover
+
+- **Compute**: `NVIDIA Jetson Nano`
+- **Mapping & Navigation**: `RPLiDAR A1` 2D rangefinder feeding `ROS 2 SLAM Toolbox` (`5 cm` occupancy grid) and `Nav2` for GPS-denied indoor rubble traversal
+- **Manipulator**: `6-DOF Lewansoul` robotic arm driven via `MoveIt 2` inverse kinematics for debris clearance and payload retrieval
